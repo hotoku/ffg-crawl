@@ -7,7 +7,7 @@ from ..items import PdfItem, TextItem
 
 LOGGER = logging.getLogger(__name__)
 
-MAX_DEPTH = 2
+MAX_DEPTH = 3
 
 class FfgCrawlSpider(scrapy.Spider):
     name = "ffg-crawl"
@@ -15,8 +15,9 @@ class FfgCrawlSpider(scrapy.Spider):
     start_urls = ["https://www.fukuoka-fg.com/"]
 
     def parse(self, response: HtmlResponse | Response):
-        if response.meta["depth"] >= 2:
+        if response.meta["depth"] >= MAX_DEPTH:
             return
+
         if isinstance(response, HtmlResponse):
             atags = response.xpath("//a")
             links = [a.attrib["href"] for a in atags]
@@ -26,6 +27,7 @@ class FfgCrawlSpider(scrapy.Spider):
             
             texts = [t.get() for t in response.xpath("//body//text()[not(parent::script)]")]
             yield TextItem(response.url, "".join(texts))
+            return
             
 
         if isinstance(response, Response):
@@ -38,5 +40,6 @@ class FfgCrawlSpider(scrapy.Spider):
                 yield PdfItem(response.url, response.body)
             else:
                 LOGGER.warning("Unknown content type: %s", ty2)
+            return
             
             
