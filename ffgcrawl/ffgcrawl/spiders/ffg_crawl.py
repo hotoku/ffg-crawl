@@ -20,7 +20,7 @@ class FfgCrawlSpider(scrapy.Spider):
 
         if isinstance(response, HtmlResponse):
             atags = response.xpath("//a")
-            links = [a.attrib["href"] for a in atags]
+            links = [a.attrib["href"] for a in atags if "href" in a.attrib]
             for l in links:
                 if l[:1] == "/":
                     yield response.follow(l, self.parse)
@@ -41,5 +41,3 @@ class FfgCrawlSpider(scrapy.Spider):
             else:
                 LOGGER.warning("Unknown content type: %s", ty2)
             return
-            
-            
