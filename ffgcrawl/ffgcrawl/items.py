@@ -1,12 +1,12 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
-import scrapy
+from dataclasses import dataclass
 
 
-class FfgcrawlItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+@dataclass
+class PdfItem:
+    url: str
+    content: bytes
+
+@dataclass
+class TextItem:
+    url: str
+    content: str
