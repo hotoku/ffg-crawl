@@ -12,9 +12,10 @@ LOGGER = logging.getLogger(__name__)
 def save_pdf(item: PdfItem):
     con = Db.connect()
     con.execute("""
-insert into pdfs (url, content, created_at) values (?, ?, ?)
-""", (item.url, item.content, datetime.now().isoformat()))
+insert into pdfs (url, referrer_title, content, created_at) values (?, ?, ?, ?)
+""", (item.url, item.referrer_title, item.content, datetime.now().isoformat()))
     con.commit()
+
 
 def save_text(item: TextItem):
     con = Db.connect()
@@ -33,4 +34,3 @@ class FfgcrawlPipeline:
         else:
             LOGGER.warning("unknown item type: %s", type(item))
         return item
-

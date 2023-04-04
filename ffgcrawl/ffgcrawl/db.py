@@ -18,6 +18,7 @@ def init_db():
     sql = """
 create table pdfs (
     url text not null,
+    referrer_title text not null,
     content blob not null,
     created_at text not null
 );

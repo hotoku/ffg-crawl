@@ -17,17 +17,18 @@ class FfgCrawlSpider(scrapy.Spider):
         super().__init__(*args, **kwargs)
         self.max_depth = int(max_depth)
 
-    def parse(self, response: HtmlResponse | Response):
+    def parse(self, response: HtmlResponse | Response, referrer_title: str = ""):
         if isinstance(response, HtmlResponse):
+            title = response.xpath("//title/text()").get() or ""
+
             if response.meta["depth"] < self.max_depth:
                 atags = response.xpath("//a")
                 links = [a.attrib["href"] for a in atags if "href" in a.attrib]
                 for l in links:
                     if l[:1] == "/":
-                        yield response.follow(l, self.parse)
+                        yield response.follow(l, self.parse, cb_kwargs=dict(referrer_title=title))
             
             texts = [t.get() for t in response.xpath("//body//text()[not(parent::script)]")]
-            title = response.xpath("//title/text()").get() or ""
             
             yield TextItem(response.url, title, "".join(texts))
             return
@@ -40,7 +41,7 @@ class FfgCrawlSpider(scrapy.Spider):
                 return
             ty2 = ty.decode()
             if ty2 == "application/pdf":
-                yield PdfItem(response.url, response.body)
+                yield PdfItem(response.url, referrer_title, response.body)
             else:
                 LOGGER.warning("Unknown content type: %s", ty2)
             return
