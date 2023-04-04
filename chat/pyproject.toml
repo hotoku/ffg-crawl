@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+llama-index = "^0.5.7"
 
 
 [build-system]
