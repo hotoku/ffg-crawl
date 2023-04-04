@@ -7,23 +7,24 @@ from ..items import PdfItem, TextItem
 
 LOGGER = logging.getLogger(__name__)
 
-MAX_DEPTH = 3
 
 class FfgCrawlSpider(scrapy.Spider):
     name = "ffg-crawl"
     allowed_domains = ["fukuoka-fg.com"]
     start_urls = ["https://www.fukuoka-fg.com/"]
 
-    def parse(self, response: HtmlResponse | Response):
-        if response.meta["depth"] >= MAX_DEPTH:
-            return
+    def __init__(self, max_depth=3, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_depth = int(max_depth)
 
+    def parse(self, response: HtmlResponse | Response):
         if isinstance(response, HtmlResponse):
-            atags = response.xpath("//a")
-            links = [a.attrib["href"] for a in atags if "href" in a.attrib]
-            for l in links:
-                if l[:1] == "/":
-                    yield response.follow(l, self.parse)
+            if response.meta["depth"] < self.max_depth:
+                atags = response.xpath("//a")
+                links = [a.attrib["href"] for a in atags if "href" in a.attrib]
+                for l in links:
+                    if l[:1] == "/":
+                        yield response.follow(l, self.parse)
             
             texts = [t.get() for t in response.xpath("//body//text()[not(parent::script)]")]
             yield TextItem(response.url, "".join(texts))
@@ -41,3 +42,5 @@ class FfgCrawlSpider(scrapy.Spider):
             else:
                 LOGGER.warning("Unknown content type: %s", ty2)
             return
+
+        LOGGER.warning(f"Unknown response type: %s", type(response))
