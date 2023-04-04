@@ -9,4 +9,5 @@ class PdfItem:
 @dataclass
 class TextItem:
     url: str
+    title: str
     content: str

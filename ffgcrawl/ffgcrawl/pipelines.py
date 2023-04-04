@@ -19,8 +19,8 @@ insert into pdfs (url, content, created_at) values (?, ?, ?)
 def save_text(item: TextItem):
     con = Db.connect()
     con.execute("""
-insert into texts (url, content, created_at) values (?, ?, ?)
-""", (item.url, item.content, datetime.now().isoformat()))
+insert into texts (url, title, content, created_at) values (?, ?, ?, ?)
+""", (item.url, item.title, item.content, datetime.now().isoformat()))
     con.commit()
 
 
