@@ -23,6 +23,7 @@ create table pdfs (
 );
 create table texts (
     url text not null,
+    title text not null,
     content text not null,
     created_at text not null
 );    

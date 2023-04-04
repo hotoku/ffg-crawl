@@ -18,6 +18,9 @@ class FfgCrawlSpider(scrapy.Spider):
         self.max_depth = int(max_depth)
 
     def parse(self, response: HtmlResponse | Response):
+        from scrapy.shell import inspect_response
+        inspect_response(response, self)
+
         if isinstance(response, HtmlResponse):
             if response.meta["depth"] < self.max_depth:
                 atags = response.xpath("//a")
@@ -27,6 +30,7 @@ class FfgCrawlSpider(scrapy.Spider):
                         yield response.follow(l, self.parse)
             
             texts = [t.get() for t in response.xpath("//body//text()[not(parent::script)]")]
+
             yield TextItem(response.url, "".join(texts))
             return
             
