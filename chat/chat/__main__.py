@@ -31,5 +31,10 @@ create table chunks (
             raise ex
 
 
+@main.command()
+def load_chunk():
+    pass
+
+
 if __name__ == "__main__":
     main()
