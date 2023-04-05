@@ -16,3 +16,7 @@ def split_to_chunk(s: str, max_len: int, sep: str = "。") -> list[str]:
         ret.append(sep.join(chunk_buf) + sep)
 
     return ret
+
+
+def extract_keywords(s: str) -> list[str]:
+    pass
