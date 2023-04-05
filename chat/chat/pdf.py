@@ -10,4 +10,4 @@ def extract(pdf: bytes) -> str:
         re.sub(r"\s+", "", page.extract_text())
         for page in reader.pages
     ]
-    return "\n".join(texts)
+    return "".join(texts)
