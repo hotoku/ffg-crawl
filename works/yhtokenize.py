@@ -7,6 +7,7 @@ import ipadic
 
 
 _TAGGER = MeCab.Tagger(ipadic.MECAB_ARGS)
+_SEP = re.compile("[\t,]")
 
 
 def extract(pdf: bytes) -> str:
@@ -21,4 +22,7 @@ def extract(pdf: bytes) -> str:
 
 def parse(s: str) -> list[str]:
     ret = _TAGGER.parse(s)
-    return [x.split("\t")[0] for x in ret.split("\n")]
+    words = [_SEP.split(x) for x in ret.split("\n")]
+    words2 = words[:-1]  # 最後は空文字なので消す
+    words3, eos = words2[:-1], words2[-1]  # EOSが最後の要素
+    return [w[7] for w in words3 if w[7] != "*"] + eos  # 未知語は*なので削除
