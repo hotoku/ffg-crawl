@@ -1,40 +1,34 @@
-import sqlite3
+import logging
 import click
 import sys
 
-from .db import db_con
+
+from .entry_points import (
+    create_tables as create_tables_impl,
+    load_chunks as load_chunks_impl,
+    drop_tables as drop_tables_impl
+)
+
+LOGGER = logging.getLogger(__name__)
+
+
+def setup_logging(debug: bool):
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
+        stream=sys.stderr
+    )
 
 
 @click.group()
-def main():
-    pass
+@click.option("--debug/--nodebug", is_flag=True, default=False)
+def main(debug: bool):
+    setup_logging(debug)
 
 
-@main.command()
-def create_table():
-    sql = """
-create table chunks (
-    id integer primary key autoincrement,
-    file_id integer not null,
-    position integer not null,
-    keywords text not null
-)
-"""
-    con = db_con()
-    try:
-        con.execute(sql)
-        con.commit()
-    except sqlite3.OperationalError as ex:
-        if str(ex) == "table chunks already exists":
-            sys.stderr.write("exists\n")
-        else:
-            raise ex
-
-
-@main.command()
-def load_chunk():
-    pass
-
+create_tables = main.command(create_tables_impl)
+load_chunks = main.command(load_chunks_impl)
+drop_tables = main.command(drop_tables_impl)
 
 if __name__ == "__main__":
     main()
