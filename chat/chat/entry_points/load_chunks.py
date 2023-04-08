@@ -20,17 +20,6 @@ def count_words(ss: list[str]) -> Mapping[str, int]:
     return ret
 
 
-def create_keywords():
-    sql2 = """
-create table if not exists keywords (
-    id integer primary key autoincrement,
-    chunk_id integer not null,
-    word text not null,
-    count integer not null
-)    
-"""
-
-
 def create_chunks():
     con = db_con()
     sql = """
@@ -56,7 +45,7 @@ def load_chunks():
       pdfs
 """)
     if is_debug():
-        df = df.iloc[:10, :]
+        df = df.iloc[:30, :]
     LOGGER.info("load data: number of rows = %d", len(df))
     con = db_con()
     for i in range(len(df)):

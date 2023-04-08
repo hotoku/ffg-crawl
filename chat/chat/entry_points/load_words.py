@@ -28,7 +28,7 @@ def load_words():
 """)
     con = db_con()
     for i in range(len(df)):
-        chunk_id = df["id"].iloc[i]
+        chunk_id = int(df["id"].iloc[i])
         text = df["content"].iloc[i]
         infos = morphological_analysis(text)
         for info in infos:

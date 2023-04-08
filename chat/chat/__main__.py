@@ -7,7 +7,9 @@ from .entry_points import (
     load_chunks as load_chunks_impl,
     drop_tables as drop_tables_impl,
     load_tfidf as load_tfidf_impl,
-    load_words as load_words_impl
+    load_words as load_words_impl,
+    clear_cache as clear_cache_impl,
+    load_keywords as load_keywords_impl
 )
 
 from . import set_debug_flag
@@ -34,9 +36,10 @@ def main(debug: bool):
 load_chunks = main.command(load_chunks_impl)
 load_words = main.command(load_words_impl)
 load_tfidf = main.command(load_tfidf_impl)
+load_keywords = main.command(load_keywords_impl)
 
 drop_tables = main.command(drop_tables_impl)
-
+clear_cache = main.command(clear_cache_impl)
 
 if __name__ == "__main__":
     main()
