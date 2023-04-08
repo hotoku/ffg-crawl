@@ -1,3 +1,4 @@
+import logging
 import os
 
 import openai
@@ -7,12 +8,16 @@ from .keywords import condition
 from .db import query
 from .chunk import morphological_analysis
 
+LOGGER = logging.getLogger(__name__)
+
 
 def question2keywords(s: str) -> list[str]:
+    ma = morphological_analysis(s)
+    LOGGER.debug("形態素解析: %s", ma)
     ret = [
         w.word for w in
-        morphological_analysis(s)
-        if condition(w.word, repr(w.attributes))
+        ma
+        if condition(w.word, w.attributes[0])
     ]
     return ret
 
@@ -52,10 +57,15 @@ def load_content(ids: list[int]) -> list[str]:
     return list(df["content"])
 
 
-def make_prompt(question: str) -> str:
+def make_prompt(question: str, num_context: int) -> str:
     kws = question2keywords(question)
     sim = keywords2simirality(kws)
-    context = "\n".join(load_content(list(sim.head(5)["chunk_id"])))
+    sim_top = sim.head(num_context)
+
+    LOGGER.debug("keywords: %s", kws)
+    LOGGER.debug("sim: %s", sim)
+
+    context = "\n".join(load_content(list(sim_top["chunk_id"])))
     template = f"""
 以下に、日本の金融機関に関する説明文があります。また、説明文に続いて、質問文があります。この説明文の情報から質問文に答えてください。
 説明文
@@ -69,9 +79,11 @@ def make_prompt(question: str) -> str:
     return template
 
 
-def ask2chatgpt(question: str, print_answer=False):
+def ask2chatgpt(question: str, num_context: int):
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    content = make_prompt(question)
+    content = make_prompt(question, num_context)
+
+    LOGGER.info("prompt: %s", content)
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
