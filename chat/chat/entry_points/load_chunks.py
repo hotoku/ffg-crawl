@@ -25,7 +25,7 @@ def load_chunks():
       content
     from
       pdfs
-""").query("id == 538")
+""")
     LOGGER.info("load data: number of rows = %d", len(df))
     con = db_con()
     for i in range(len(df)):
