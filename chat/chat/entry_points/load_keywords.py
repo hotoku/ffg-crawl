@@ -23,15 +23,10 @@ def create_keywords():
     con.commit()
 
 
-def condition(word: str, _attrs: str | list[str]) -> bool:
-    if isinstance(_attrs, str):
-        attrs = eval(_attrs)
-    else:
-        attrs = _attrs
+def condition(word: str, a0: str) -> bool:
     return (
         word != "*" and
-        attrs[0] == "名詞" and
-        attrs[1] != "数"
+        a0 == "名詞"
     )
 
 
@@ -40,17 +35,19 @@ def load_keywords():
     select
       chunk_id,
       word,
-      attributes
+      attr0
     from
       words
 """)
     LOGGER.info("load df. number of records = %d", len(df))
-
+    word = df["word"]
+    attr0 = df["attr0"]
+    LOGGER.info("calculating flags")
     flags = [
-        condition(df["word"].iloc[i],
-                  df["attributes"].iloc[i])
-        for i in range(len(df))
+        condition(w, a)
+        for w, a in zip(word, attr0)
     ]
+    LOGGER.info("filtering and couting data")
     df2: pd.DataFrame = (
         df
         .loc[flags, :]

@@ -13,6 +13,8 @@ create table words (
     id integer primary key autoincrement,
     chunk_id integer not null,
     word text not null,
+    attr0 text not null,
+    attr1 text not null,
     attributes text not null
 );
 """
@@ -42,14 +44,20 @@ def load_words():
             words (
               chunk_id,
               word,
+              attr0,
+              attr1,
               attributes
             )
             values (
+              ?,
+              ?,
               ?,
               ?,
               ?
             )
             """, [chunk_id,
                   info.word,
+                  info.attributes[0],
+                  info.attributes[1],
                   repr(info.attributes)])
         con.commit()
