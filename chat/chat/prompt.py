@@ -44,6 +44,28 @@ def keywords2simirality(ws: list[str]) -> pd.DataFrame:
     return query(sql).sort_values("similarity", ascending=False)
 
 
+def keywords2simirality2(ws: list[str]) -> pd.DataFrame:
+    words = ",".join(map(lambda w: f"'{w}'", ws))
+    sql = f"""
+    with temp1 as (
+        select
+          *
+        from
+          tcidfs
+        where
+          word in ({words})
+    )
+    select
+      chunk_id,
+      sum(tcidf) as similarity
+    from
+      temp1
+    group by
+      chunk_id
+    """
+    return query(sql).sort_values("similarity", ascending=False)
+
+
 def load_content(ids: list[int]) -> list[str]:
     sql = f"""
     select
@@ -59,13 +81,15 @@ def load_content(ids: list[int]) -> list[str]:
 
 def make_prompt(question: str, num_context: int) -> str:
     kws = question2keywords(question)
-    sim = keywords2simirality(kws)
+    sim = keywords2simirality2(kws)
     sim_top = sim.head(num_context)
 
     LOGGER.debug("keywords: %s", kws)
     LOGGER.debug("sim: %s", sim)
 
-    context = "\n".join(load_content(list(sim_top["chunk_id"])))
+    chunks = load_content(list(sim_top["chunk_id"]))
+
+    context = "\n".join([f"{w[:300]}" for w in chunks])
     template = f"""
 以下に、日本の金融機関に関する説明文があります。また、説明文に続いて、質問文があります。この説明文の情報から質問文に答えてください。
 説明文
@@ -76,20 +100,18 @@ def make_prompt(question: str, num_context: int) -> str:
 -----------
 {question}
     """
+    LOGGER.debug("prompt: %s", template)
+
     return template
 
 
-def ask2chatgpt(question: str, num_context: int):
+def ask2chatgpt(prompt: str):
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    content = make_prompt(question, num_context)
-
-    LOGGER.info("prompt: %s", content)
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "user", "content": content}
+            {"role": "user", "content": prompt}
         ]
     )
-
     return completion

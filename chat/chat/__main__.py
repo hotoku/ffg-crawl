@@ -7,6 +7,7 @@ from .entry_points import (
     load_chunks as load_chunks_impl,
     drop_tables as drop_tables_impl,
     load_tfidfs as load_tfidfs_impl,
+    load_tcidfs as load_tcidfs_impl,
     load_words as load_words_impl,
     clear_cache as clear_cache_impl,
     load_keywords as load_keywords_impl,
@@ -38,6 +39,7 @@ load_chunks = main.command(load_chunks_impl)
 load_words = main.command(load_words_impl)
 load_keywords = main.command(load_keywords_impl)
 load_tfidfs = main.command(load_tfidfs_impl)
+load_tcidfs = main.command(load_tcidfs_impl)
 
 drop_tables = main.command(drop_tables_impl)
 clear_cache = main.command(clear_cache_impl)
