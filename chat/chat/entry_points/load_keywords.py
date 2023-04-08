@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 from ..db import db_con, query
-
+from ..keywords import condition
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,13 +21,6 @@ def create_keywords():
     con = db_con()
     con.executescript(sql)
     con.commit()
-
-
-def condition(word: str, a0: str) -> bool:
-    return (
-        word != "*" and
-        a0 == "名詞"
-    )
 
 
 def load_keywords():

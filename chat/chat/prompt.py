@@ -3,8 +3,7 @@ import os
 import openai
 import pandas as pd
 
-from .entry_points.load_keywords import condition
-
+from .keywords import condition
 from .db import query
 from .chunk import morphological_analysis
 
