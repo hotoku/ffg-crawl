@@ -9,7 +9,8 @@ from .entry_points import (
     load_tfidfs as load_tfidfs_impl,
     load_words as load_words_impl,
     clear_cache as clear_cache_impl,
-    load_keywords as load_keywords_impl
+    load_keywords as load_keywords_impl,
+    ask as ask_impl
 )
 
 from . import set_debug_flag
@@ -40,6 +41,8 @@ load_tfidfs = main.command(load_tfidfs_impl)
 
 drop_tables = main.command(drop_tables_impl)
 clear_cache = main.command(clear_cache_impl)
+
+ask = main.command(ask_impl)
 
 if __name__ == "__main__":
     main()

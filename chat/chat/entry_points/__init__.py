@@ -4,3 +4,4 @@ from .load_tfidfs import load_tfidfs
 from .load_words import load_words
 from .clear_cache import clear_cache
 from .load_keywords import load_keywords
+from .ask import ask
