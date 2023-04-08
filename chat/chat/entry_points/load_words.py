@@ -1,5 +1,8 @@
+import logging
 from ..chunk import morphological_analysis
 from ..db import db_con, query
+
+LOGGER = logging.getLogger(__name__)
 
 
 def create_words():
@@ -26,8 +29,10 @@ def load_words():
     from
       chunks
 """)
+    LOGGER.info("load df. number of records = %d", len(df))
     con = db_con()
     for i in range(len(df)):
+        LOGGER.info("start %d-th chunk", i)
         chunk_id = int(df["id"].iloc[i])
         text = df["content"].iloc[i]
         infos = morphological_analysis(text)
