@@ -4,11 +4,13 @@ import sys
 
 
 from .entry_points import (
-    create_tables as create_tables_impl,
     load_chunks as load_chunks_impl,
     drop_tables as drop_tables_impl,
     load_tfidf as load_tfidf_impl
 )
+
+from . import set_debug_flag
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,9 +27,9 @@ def setup_logging(debug: bool):
 @click.option("--debug/--nodebug", is_flag=True, default=False)
 def main(debug: bool):
     setup_logging(debug)
+    set_debug_flag(debug)
 
 
-create_tables = main.command(create_tables_impl)
 load_chunks = main.command(load_chunks_impl)
 drop_tables = main.command(drop_tables_impl)
 load_tfidf = main.command(load_tfidf_impl)

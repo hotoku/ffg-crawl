@@ -3,7 +3,9 @@ from collections.abc import Mapping
 import logging
 
 from PyPDF2.errors import DependencyError
-from ..chunk import extract_keywords, split_to_chunk
+
+from chat import is_debug
+from ..chunk import morphological_analysis, split_to_chunk
 from ..db import db_con, query
 from ..pdf import extract
 
@@ -18,7 +20,49 @@ def count_words(ss: list[str]) -> Mapping[str, int]:
     return ret
 
 
+def create_keywords():
+    sql2 = """
+create table if not exists keywords (
+    id integer primary key autoincrement,
+    chunk_id integer not null,
+    word text not null,
+    count integer not null
+)    
+"""
+
+
+def create_chunks():
+    con = db_con()
+    sql = """
+drop table if exists chunks;
+create table chunks (
+    id integer primary key autoincrement,
+    pdf_id integer not null,
+    position integer not null,
+    content text not null
+);
+"""
+    con.executescript(sql)
+    con.commit()
+
+
+def create_words():
+    con = db_con()
+    sql = """
+drop table if exists words;
+create table words (
+    id integer primary key autoincrement,
+    chunk_id integer not null,
+    word text not null,
+    attributes text not null
+);
+"""
+    con.executescript(sql)
+    con.commit()
+
+
 def load_chunks():
+    create_chunks()
     df = query("""
     select
       id,
@@ -26,6 +70,8 @@ def load_chunks():
     from
       pdfs
 """)
+    if is_debug():
+        df = df.iloc[:10, :]
     LOGGER.info("load data: number of rows = %d", len(df))
     con = db_con()
     for i in range(len(df)):
@@ -41,7 +87,6 @@ def load_chunks():
             chunks = split_to_chunk(text, 300)
             for j, chunk in enumerate(chunks):
                 LOGGER.info("processing %d-th chunk.", j)
-                keywords = extract_keywords(chunk)
                 con.execute("""
                 insert into chunks (
                   pdf_id,
@@ -54,24 +99,41 @@ def load_chunks():
                   ?
                 )
                 """, [pdf_id, j, chunk])
-                cur = con.execute("select last_insert_rowid() as chunk_id;")
-                row = cur.fetchone()
-                chunk_id: int = row["chunk_id"]
-                counts = count_words(keywords)
-                for k, v in counts.items():
-                    con.execute("""
-                    insert into keywords (
-                      chunk_id,
-                      word,
-                      count
-                    ) values (
-                      ?,
-                      ?,
-                      ?
-                    )
-                    """, [chunk_id, k, v])
                 con.commit()
         except Exception as ex:
             LOGGER.error("unknown error: pdf_id %d, %s", pdf_id, ex)
             LOGGER.warn("parsing pdf_id %d results in error. skip.", pdf_id)
             continue
+
+
+def load_words():
+    create_words()
+    df = query("""
+    select
+      id,
+      content
+    from
+      chunks
+""")
+    con = db_con()
+    for i in range(len(df)):
+        chunk_id = df["id"].iloc[i]
+        text = df["content"].iloc[i]
+        infos = morphological_analysis(text)
+        for info in infos:
+            con.execute("""
+            insert into
+            words (
+              chunk_id,
+              word,
+              attributes
+            )
+            values (
+              ?,
+              ?,
+              ?
+            )
+            """, [chunk_id,
+                  info.word,
+                  repr(info.attributes)])
+        con.commit()

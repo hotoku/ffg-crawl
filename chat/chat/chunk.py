@@ -1,5 +1,6 @@
 from collections import deque
 import re
+from dataclasses import dataclass
 
 import MeCab
 import ipadic
@@ -24,12 +25,20 @@ def split_to_chunk(s: str, max_len: int, sep: str = "。") -> list[str]:
     return ret
 
 
-def extract_keywords(s: str) -> list[str]:
+@dataclass
+class MorphologicalInformation:
+    word: str
+    attributes: list[str]
+
+
+def morphological_analysis(s: str) -> list[MorphologicalInformation]:
     words = _TAGGER.parse(s).split("\n")
     # 最後の2個はEOSと空文字なので削除
-    infos = list(map(lambda s: re.split(r"[\t,]", s), words))[:-2]
-    ret: list[str] = []
-    for info in infos:
-        if info[1] == "名詞" and info[2] in ("一般", "固有名詞"):
-            ret.append(info[7])
-    return ret
+    infos: list[list[str]] = list(
+        map(lambda s: re.split(r"[\t,]", s), words))[:-2]
+    return [
+        MorphologicalInformation(
+            info[0], info[1:]
+        )
+        for info in infos
+    ]
