@@ -50,7 +50,7 @@ from
         query(sql)
         .assign(
             tfidf=lambda df: df["term_frequency"] *
-            np.log(1/df["document_count"])
+            np.log(1/df["document_frequency"])
         )
     )
     con = db_con()

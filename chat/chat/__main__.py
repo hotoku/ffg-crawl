@@ -6,7 +6,8 @@ import sys
 from .entry_points import (
     create_tables as create_tables_impl,
     load_chunks as load_chunks_impl,
-    drop_tables as drop_tables_impl
+    drop_tables as drop_tables_impl,
+    load_tfidf as load_tfidf_impl
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ def main(debug: bool):
 create_tables = main.command(create_tables_impl)
 load_chunks = main.command(load_chunks_impl)
 drop_tables = main.command(drop_tables_impl)
+load_tfidf = main.command(load_tfidf_impl)
 
 if __name__ == "__main__":
     main()
