@@ -1,6 +1,7 @@
+from collections.abc import Iterable
 import logging
-import sqlite3
-import sys
+
+import click
 
 from ..db import db_con
 
@@ -13,11 +14,24 @@ drop table if exists {table}
 """
 
 
-def drop_tables():
-    con = db_con()
+_TARGET_TABLES = [
+    "chunks",
+    "keywords",
+    "words",
+    "tfidfs",
+    "document_counts"
+]
 
-    for table in ["chunks", "keywords", "words", "tfidfs", "document_counts"]:
-        LOGGER.info("droping %s", table)
-        con.execute(drop_query(table))
+
+@click.argument("tables", nargs=-1)
+def drop_tables(tables: Iterable[str]):
+    for t in tables:
+        if not t in _TARGET_TABLES:
+            raise ValueError(f"{t} can not be deleted.")
+
+    con = db_con()
+    for t in tables:
+        LOGGER.info("droping %s", t)
+        con.execute(drop_query(t))
 
     con.commit()
