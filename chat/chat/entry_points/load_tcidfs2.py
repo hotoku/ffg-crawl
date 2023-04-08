@@ -60,6 +60,6 @@ from
             np.log(1/df["document_frequency"])
         )
     )
-    con.execute("drop table if exists tcidfs")
+    con.execute("drop table if exists tcidfs2")
     tcidf.to_sql("tcidfs2", con, index=False)
     con.commit()

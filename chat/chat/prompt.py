@@ -66,6 +66,29 @@ def keywords2simirality2(ws: list[str]) -> pd.DataFrame:
     return query(sql).sort_values("similarity", ascending=False)
 
 
+def keywords2simirality3(ws: list[str]) -> pd.DataFrame:
+    words = ",".join(map(lambda w: f"'{w}'", ws))
+    sql = f"""
+    with temp1 as (
+        select
+          *
+        from
+          tcidfs2
+        where
+          word in ({words})
+    )
+    select
+      chunk_id,
+      sum(tcidf) as similarity
+    from
+      temp1
+    group by
+      chunk_id
+    """
+    return query(sql).sort_values("similarity", ascending=False)
+
+
+
 def load_content(ids: list[int]) -> list[str]:
     sql = f"""
     select
@@ -81,7 +104,7 @@ def load_content(ids: list[int]) -> list[str]:
 
 def make_prompt(question: str, num_context: int) -> str:
     kws = question2keywords(question)
-    sim = keywords2simirality2(kws)
+    sim = keywords2simirality3(kws)
     sim_top = sim.head(num_context)
 
     LOGGER.debug("keywords: %s", kws)
