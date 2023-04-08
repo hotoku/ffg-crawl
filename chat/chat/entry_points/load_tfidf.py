@@ -4,7 +4,21 @@ from ..db import db_con, query
 
 
 def load_tfidf():
-    sql = """
+    con = db_con()
+    sql1 = """
+drop table if exists document_counts;
+create table document_counts as
+select
+  word,
+  count(distinct chunk_id) as document_count
+from
+  keywords
+group by
+  word;    
+"""
+    con.executescript(sql1)
+    
+    sql2 = """
 with document_length as (
     select
       chunk_id,
@@ -24,14 +38,6 @@ with document_length as (
         inner join
       document_length dl
         on k.chunk_id = dl.chunk_id
-), document_count as (
-    select
-      word,
-      count(distinct chunk_id) as document_count
-    from
-      keywords
-    group by
-      word      
 )
 select
   tf.chunk_id,
@@ -43,17 +49,16 @@ select
 from
   term_frequency tf
     inner join
-  document_count dc
+  document_counts dc
     on tf.word = dc.word
 """
     tfidf = (
-        query(sql)
+        query(sql2)
         .assign(
             tfidf=lambda df: df["term_frequency"] *
             np.log(1/df["document_frequency"])
         )
     )
-    con = db_con()
-    con.execute("drop table if exists tfidf")
-    tfidf.to_sql("tfidf", con)
+    con.execute("drop table if exists tfidfs")
+    tfidf.to_sql("tfidfs", con, index=False)
     con.commit()
