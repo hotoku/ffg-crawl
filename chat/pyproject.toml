@@ -14,6 +14,7 @@ ipadic = "^1.0.0"
 pypdf2 = "^3.0.1"
 pandas = "^2.0.0"
 yuzu = "^4.1.1"
+openai = "^0.27.4"
 
 
 [tool.poetry.group.dev.dependencies]
