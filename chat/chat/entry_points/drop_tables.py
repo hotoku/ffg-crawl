@@ -7,16 +7,17 @@ from ..db import db_con
 LOGGER = logging.getLogger(__name__)
 
 
+def drop_query(table: str) -> str:
+    return f"""
+drop table if exists {table}
+"""
+
+
 def drop_tables():
     con = db_con()
-    sql = """
-drop table if exists chunks
-"""
-    sql2 = """
-drop table if exists keywords
-"""
-    LOGGER.info("droping chunks")
-    con.execute(sql)
-    LOGGER.info("droping keywords")
-    con.execute(sql2)
+
+    for table in ["chunks", "keywords", "words", "tfidfs", "document_counts"]:
+        LOGGER.info("droping %s", table)
+        con.execute(drop_query(table))
+
     con.commit()
