@@ -3230,7 +3230,19 @@ y-py = ">=0.5.3,<0.6.0"
 [package.extras]
 test = ["mypy", "pre-commit", "pytest", "pytest-asyncio", "websockets (>=10.0)"]
 
+[[package]]
+name = "yuzu"
+version = "4.1.1"
+description = "Lightweight and useful annotation package for logging and caching"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "yuzu-4.1.1-py3-none-any.whl", hash = "sha256:0a1e0e627b3f6eb30c82911f532e90f1233b09c010fcf6eb9743fa33f948f83b"},
+    {file = "yuzu-4.1.1.tar.gz", hash = "sha256:99d83395b734bf6fc54cc54333497298bba2a43beadcf8312fedd59a846d4ebd"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6e36bb61278e3539879bed9a1375b257c9c48a58111746d9d30a32721ecc4e51"
+content-hash = "66c09f95a0fec9dc9abc89c7dbc06cfc214082d89c44bb45d57af7fe4a762a51"

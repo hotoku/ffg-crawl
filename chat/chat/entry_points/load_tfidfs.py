@@ -3,7 +3,7 @@ import numpy as np
 from ..db import db_con, query
 
 
-def load_tfidf():
+def load_tfidfs():
     con = db_con()
     sql1 = """
 drop table if exists document_counts;
@@ -17,7 +17,7 @@ group by
   word;    
 """
     con.executescript(sql1)
-    
+
     sql2 = """
 with document_length as (
     select

@@ -14,6 +14,7 @@ pypdf2 = "^3.0.1"
 llama-index = "^0.5.7"
 mecab-python3 = "^1.0.6"
 ipadic = "^1.0.0"
+yuzu = "^4.1.1"
 
 
 [build-system]
