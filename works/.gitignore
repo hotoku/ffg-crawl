@@ -2,3 +2,4 @@ texts.txt
 pdfs/
 jupyter.pid
 jupyter.log
+.cache/
